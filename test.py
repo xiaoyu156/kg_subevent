@@ -4,7 +4,12 @@
 # @Email   : tangjinghong@iie.ac.cn
 # @File    : test.py
 # @Software: PyCharm
-from data_load.mysql import mysql
+import thread
+from data_load.mysql_data import mysql
+import math
 
-db = mysql()
-print db.getAllEvents()
+if __name__ == '__main__':
+    # 先获取所有
+    # 取模=0  计算多少个线程
+    s = int(math.ceil(45 /float(40)))
+    print s

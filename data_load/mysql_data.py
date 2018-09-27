@@ -10,20 +10,26 @@ import traceback
 import MySQLdb
 
 
-
 class mysql:
     def __init__(self):
         self.conn = MySQLdb.connect(
-            host="127.0.0.1",
+            host="192.168.1.111",
             user="root",
-            passwd="admin",
-            db="kg",
+            passwd="123",
+            db="kg_middle",
             charset="utf8")
+        # self.conn = MySQLdb.connect(
+        #     host="localhost",
+        #     user="root",
+        #     passwd="admin",
+        #     db="kg",
+        #     charset="utf8")
 
     def getAllEvents(self):
         cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 
-        sql = "SELECT * from event_details WHERE subevents is NULL or subevents='' AND subevents NOT LIKE '%[*%' AND state=2 limit 500"
+        # sql = "SELECT * from event_details WHERE subevents is NULL or subevents='' AND subevents NOT LIKE '%[*%' AND state=2 limit 1000"
+        sql = "SELECT * from event_details WHERE state=2 limit 60000"
         n = cursor.execute(sql)
 
         return cursor.fetchall()
@@ -31,7 +37,7 @@ class mysql:
     def getSamplesByEventId(self, event_id):
         cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 
-        sql = "select * from  event_sample_content WHERE specialId= %s"
+        sql = "select * from  event_sample_content WHERE specialId= %s ORDER BY publishDate ASC "
         n = cursor.execute(sql, [event_id])
 
         return cursor.fetchall()
@@ -75,7 +81,7 @@ class mysql:
 
             self.conn.rollback()
 
-    def getSomeAccount(self, event_id, some):
+    def getSomeAccount(self, event_id):
         cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 
         sql = 'select * from account where event_id=%s'
@@ -83,13 +89,13 @@ class mysql:
 
         return cursor.fetchall()
 
-    def updateEvent(self, subEvent, eventId):
+    def updateEvent(self, event_id, sub_event):
         cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
         sql = 'update event_details set subevents = %s,state=3 where event_id = %s'
         try:
-            n = cursor.execute(sql, [str(subEvent), eventId])
+            n = cursor.execute(sql, [sub_event, event_id])
             self.conn.commit()
         except Exception as e:
-            print e
-            # 回滚
+            msg = traceback.format_exc()
+            print msg
             self.conn.rollback()
